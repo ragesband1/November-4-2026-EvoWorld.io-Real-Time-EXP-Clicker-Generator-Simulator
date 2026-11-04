@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EvoWorld.io Real-Time EXP Clicker & Generator Simulator</title>
+    <!-- Tailwind CSS for modern responsive utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for gamer icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0b0f19;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Custom Glows and Shadows */
+        .glow-cyan {
+            text-shadow: 0 0 10px rgba(6, 182, 212, 0.7), 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+        .glow-green {
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.7), 0 0 20px rgba(34, 197, 94, 0.4);
+        }
+        .glow-purple {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.7), 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+        .box-glow-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.3), inset 0 0 15px rgba(6, 182, 212, 0.15);
+        }
+        .box-glow-purple {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), inset 0 0 15px rgba(168, 85, 247, 0.2);
+        }
+        .box-glow-gold {
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.4);
+        }
+
+        /* Floating Click Effect Text */
+        .float-text {
+            position: absolute;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            pointer-events: none;
+            animation: floatUpFade 1s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            z-index: 50;
+        }
+
+        @keyframes floatUpFade {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-40px) scale(1.3);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-80px) scale(0.9);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+            border: 1px solid #334155;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #06b6d4;
+        }
+
+        /* Card Pulse on Auto Click */
+        .autoclick-pulse {
+            animation: pulseGlow 0.4s ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); box-shadow: 0 0 20px rgba(34, 197, 94, 0.6); }
+            100% { transform: scale(1); }
+        }
+
+        /* Floating Animation */
+        .floating-avatar {
+            animation: hoverFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes hoverFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between relative bg-slate-950 text-slate-100">
+
+    <!-- Ambient Background Effects -->
+    <div class="fixed inset-0 pointer-events-none opacity-20 z-0">
+        <div class="absolute top-10 left-10 w-96 h-96 bg-cyan-500 rounded-full filter blur-[120px]"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-600 rounded-full filter blur-[120px]"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-500 rounded-full filter blur-[150px]"></div>
+    </div>
+
+    <div class="relative z-10 flex flex-col min-h-screen">
+        <!-- HEADER & NAVBAR -->
+        <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-4 py-3 shadow-2xl">
+            <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+                
+                <!-- Logo & Official Link -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-emerald-400 to-yellow-400 p-0.5 shadow-lg flex items-center justify-center">
+                            <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+                                <i class="fa-solid fa-dragon text-cyan-400 text-xl"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <h1 class="font-orbitron text-xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-300 to-yellow-400">
+                                EVOWORLD<span class="text-xs text-cyan-400 ml-1 font-sans px-1.5 py-0.5 bg-cyan-950 border border-cyan-800 rounded">SIM</span>
+                            </h1>
+                            <p class="text-xs text-slate-400 font-semibold">Real-Time EXP Clicker & Code Generator</p>
+                        </div>
+                    </div>
+
+                    <!-- Direct Official Game Link -->
+                    <a href="https://evoworld.io/" target="_blank" rel="noopener noreferrer" 
+                       class="hidden sm:flex items-center space-x-2 px-3 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-950 font-bold rounded-lg text-xs transition duration-200 shadow-md hover:shadow-emerald-500/20">
+                        <span>Play EvoWorld.io</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
+                    </a>
+                </div>
+
+                <!-- Player Profile & Control Bar -->
+                <div class="flex items-center space-x-3">
+                    <!-- Profile Edit -->
+                    <div class="flex items-center bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-1.5">
+                        <i class="fa-solid fa-user-ninja text-emerald-400 mr-2 text-sm"></i>
+                        <span id="player-name-display" class="font-bold text-sm text-slate-200 mr-2 max-w-[100px] sm:max-w-[140px] truncate">Player_1</span>
+                        <button onclick="editPlayerName()" class="text-slate-400 hover:text-cyan-400 transition" title="Rename Profile">
+                            <i class="fa-solid fa-pen-to-square text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Reset Progress Button -->
+                    <button onclick="confirmReset()" class="px-2.5 py-1.5 bg-rose-950/60 hover:bg-rose-900/80 border border-rose-800/60 text-rose-300 rounded-lg text-xs font-semibold transition" title="Reset All Local Progress">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN DASHBOARD CONTENT -->
+        <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-grow grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- LEFT COLUMN: MAIN CLICKER & CREATURE EVOLUTION (Lg: 5 Cols) -->
+            <section class="lg:col-span-5 flex flex-col space-y-6">
+
+                <!-- MAIN CLICKER HERO CARD -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 relative overflow-hidden box-glow-cyan backdrop-blur-sm flex flex-col items-center text-center">
+                    
+                    <!-- Dynamic Evolution Badge -->
+                    <div class="w-full flex justify-between items-center mb-4">
+                        <span id="stage-badge" class="px-3 py-1 rounded-full text-xs font-bold font-orbitron bg-cyan-950 text-cyan-300 border border-cyan-700/60 shadow">
+                            STAGE 1: FLY
+                        </span>
+                        <span id="multiplier-display" class="text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2.5 py-1 rounded-full">
+                            <i class="fa-solid fa-bolt mr-1"></i>1x Multiplier
+                        </span>
+                    </div>
+
+                    <!-- Dynamic Floating Avatar Container (MAIN EXP CLICK TARGET) -->
+                    <div id="main-click-target" 
+                         onclick="handleMainClick(event)"
+                         onmouseenter="startMainHover()"
+                         onmouseleave="stopMainHover()"
+                         class="relative w-44 h-44 sm:w-52 sm:h-52 my-2 cursor-pointer rounded-full bg-gradient-to-b from-slate-800/60 to-slate-950/90 border-4 border-cyan-500/40 flex items-center justify-center transition-transform transform active:scale-95 hover:border-cyan-400 box-glow-cyan group">
+                        
+                        <div id="creature-icon-wrapper" class="floating-avatar text-7xl sm:text-8xl text-cyan-400 group-hover:scale-110 transition duration-300">
+                            <!-- Injected SVG/Icon -->
+                            <i class="fa-solid fa-bug"></i>
+                        </div>
+
+                        <!-- Hover Aura -->
+                        <div class="absolute inset-0 rounded-full bg-cyan-500/10 opacity-0 group-hover:opacity-100 transition duration-300 animate-pulse pointer-events-none"></div>
+                    </div>
+
+                    <p class="text-xs text-slate-400 font-semibold mb-2">Tap or Hover over the creature to generate EXP!</p>
+
+                    <!-- Total EXP Counter -->
+                    <div class="w-full bg-slate-950/90 border border-slate-800 rounded-xl p-3 my-2 shadow-inner">
+                        <div class="text-xs text-slate-400 uppercase tracking-widest font-semibold">Total Accumulated EXP</div>
+                        <div id="total-exp-display" class="text-3xl sm:text-4xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-300 glow-cyan my-1">
+                            0
+                        </div>
+                        <div id="exp-per-sec-display" class="text-xs font-bold text-emerald-400">
+                            +0 EXP / sec (Passive)
+                        </div>
+                    </div>
+
+                    <!-- Evolution Progress Bar -->
+                    <div class="w-full space-y-1.5 mt-2">
+                        <div class="flex justify-between text-xs font-semibold">
+                            <span class="text-slate-400">Evolution Progress</span>
+                            <span id="next-stage-name" class="text-cyan-400 font-bold">Next: Butterfly</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-3.5 border border-slate-800 p-0.5 relative overflow-hidden">
+                            <div id="evolution-progress-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full rounded-full transition-all duration-300 w-0"></div>
+                        </div>
+                        <div class="flex justify-between text-[10px] text-slate-500 font-bold">
+                            <span id="current-stage-exp">0 EXP</span>
+                            <span id="required-stage-exp">50 EXP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASSIVE INFINITE HOVER & AUTOMATION TOGGLES -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="p-2 bg-emerald-950/80 border border-emerald-700/60 rounded-lg text-emerald-400">
+                                <i class="fa-solid fa-infinity text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-200">Infinite Hover Auto-Farm</h3>
+                                <p class="text-xs text-slate-400">Continuous EXP generation on hover</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="auto-hover-toggle" onchange="toggleAutoHover()" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- CREATURE EVOLUTION TIMELINE TREE -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 flex flex-col space-y-3">
+                    <h3 class="font-orbitron text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center">
+                        <i class="fa-solid fa-sitemap text-cyan-400 mr-2"></i> Evolution Stages Spectrum
+                    </h3>
+                    <div id="evolution-tree-container" class="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- Dynamically populated creature stage badges -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: YOUTUBER CODES GRID & LEADERBOARD (Lg: 7 Cols) -->
+            <section class="lg:col-span-7 flex flex-col space-y-6">
+
+                <!-- CREATOR BONUS CODES SECTION -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-sm flex flex-col space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                        <div>
+                            <h2 class="font-orbitron font-bold text-lg text-slate-100 flex items-center">
+                                <i class="fa-brands fa-youtube text-rose-500 mr-2 text-xl"></i> YouTuber & Special Bonus Codes
+                            </h2>
+                            <p class="text-xs text-slate-400">Click a code to claim instant EXP & activate its passive Auto-Clicker Bot!</p>
+                        </div>
+                        <span class="text-xs font-bold px-2.5 py-1 bg-rose-950/80 border border-rose-800/60 text-rose-300 rounded-lg">
+                            +40% EXP Boost Codes
+                        </span>
+                    </div>
+
+                    <!-- Creator Code Search / Filter -->
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input type="text" id="code-search-input" onkeyup="filterCreatorCodes()" placeholder="Search creator codes (e.g. SkyBS, Nortos, Akax)..." 
+                               class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-8 pr-4 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 transition">
+                    </div>
+
+                    <!-- Creator Code Cards Grid -->
+                    <div id="creator-codes-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[380px] overflow-y-auto pr-1">
+                        <!-- Dynamically generated 27+ Creator Code Cards -->
+                    </div>
+                </div>
+
+                <!-- REAL-TIME AI LEADERBOARD -->
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 backdrop-blur-sm flex flex-col space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div>
+                            <h2 class="font-orbitron font-bold text-lg text-slate-100 flex items-center">
+                                <i class="fa-solid fa-trophy text-amber-400 mr-2 text-xl"></i> Global Live Leaderboard
+                            </h2>
+                            <p class="text-xs text-slate-400">Compete real-time against top AI players & bot evolvers</p>
+                        </div>
+                        <div class="flex items-center space-x-1 text-xs text-slate-400 font-semibold bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse mr-1"></span>
+                            Live Update
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard Ranks Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-950/80 text-slate-400 font-orbitron uppercase text-[10px]">
+                                <tr>
+                                    <th class="py-2 px-3 rounded-l-lg">Rank</th>
+                                    <th class="py-2 px-3">Player</th>
+                                    <th class="py-2 px-3">Stage / Tier</th>
+                                    <th class="py-2 px-3 text-right rounded-r-lg">Total EXP</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body" class="divide-y divide-slate-800/50">
+                                <!-- Dynamically updated leaderboard rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="bg-slate-950 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500 mt-auto">
+            <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+                <p>© 2026 EvoWorld.io EXP Simulator Fan Application. All assets & trademarks belong to original creators.</p>
+                <div class="flex items-center space-x-4">
+                    <a href="https://evoworld.io/" target="_blank" class="hover:text-cyan-400 transition">Official Game</a>
+                    <span class="text-slate-700">•</span>
+                    <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-database mr-1"></i>Auto-Saved Locally</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL: RENAME PLAYER PROFILE -->
+    <div id="rename-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <h3 class="font-orbitron font-bold text-lg text-slate-100">Change Player Profile Name</h3>
+            <input type="text" id="rename-input" maxlength="18" placeholder="Enter new username..."
+                   class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-cyan-400">
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="closeRenameModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold">Cancel</button>
+                <button onclick="savePlayerName()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-slate-950 rounded-lg text-xs font-bold">Save Name</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        /* ==========================================================================
+           1. GAME DATA & EVOLUTION STAGES CONFIGURATION
+           ========================================================================== */
+        const EVOLUTION_STAGES = [
+            { id: 1, name: "Fly", reqExp: 0, mult: 1, icon: "fa-bug", color: "text-slate-400" },
+            { id: 2, name: "Butterfly", reqExp: 100, mult: 2, icon: "fa-feather", color: "text-amber-400" },
+            { id: 3, name: "Mosquito", reqExp: 350, mult: 4, icon: "fa-locust", color: "text-lime-400" },
+            { id: 4, name: "Pigeon", reqExp: 900, mult: 8, icon: "fa-dove", color: "text-sky-300" },
+            { id: 5, name: "Bat", reqExp: 2200, mult: 15, icon: "fa-mask", color: "text-purple-400" },
+            { id: 6, name: "Falcon", reqExp: 5000, mult: 30, icon: "fa-crow", color: "text-teal-300" },
+            { id: 7, name: "Eagle", reqExp: 12000, mult: 60, icon: "fa-kiwi-bird", color: "text-yellow-400" },
+            { id: 8, name: "Pterodactyl", reqExp: 30000, mult: 120, icon: "fa-dragon", color: "text-orange-400" },
+            { id: 9, name: "Dragon", reqExp: 75000, mult: 250, icon: "fa-dungeon", color: "text-rose-500" },
+            { id: 10, name: "Demon", reqExp: 180000, mult: 500, icon: "fa-skull-crossbones", color: "text-red-600" },
+            { id: 11, name: "Grim Reaper", reqExp: 450000, mult: 1000, icon: "fa-skull", color: "text-purple-500" },
+            { id: 12, name: "Cosmic Reaper", reqExp: 1000000, mult: 2500, icon: "fa-ghost", color: "text-cyan-300" }
+        ];
+
+        /* All 27 verified YouTuber codes + Special Developer codes */
+        const CREATOR_CODES = [
+            { code: "SkyBS", creator: "SkyBS", boost: "+40% EXP", baseRate: 15 },
+            { code: "Nortos", creator: "Nortos", boost: "+40% EXP", baseRate: 15 },
+            { code: "Plaxer1", creator: "Plaxer1", boost: "+40% EXP", baseRate: 15 },
+            { code: "Akax", creator: "Droup Akax", boost: "+40% EXP", baseRate: 12 },
+            { code: "Dora", creator: "Doraevo", boost: "+40% EXP", baseRate: 12 },
+            { code: "Doraevo", creator: "Doraevo", boost: "+40% EXP", baseRate: 12 },
+            { code: "Apic", creator: "Apic", boost: "+40% EXP", baseRate: 10 },
+            { code: "Arara", creator: "Arara", boost: "+40% EXP", baseRate: 10 },
+            { code: "Chounis", creator: "Chounis", boost: "+40% EXP", baseRate: 10 },
+            { code: "DORAEMON", creator: "Doraemon", boost: "+40% EXP", baseRate: 10 },
+            { code: "EXPERT", creator: "Expert Gamer", boost: "+40% EXP", baseRate: 10 },
+            { code: "HACKER", creator: "Hacker Pro", boost: "+40% EXP", baseRate: 10 },
+            { code: "ImDaMacik", creator: "ImDaMacik", boost: "+40% EXP", baseRate: 10 },
+            { code: "JASIM", creator: "Jasim", boost: "+40% EXP", baseRate: 10 },
+            { code: "JeromeASF", creator: "JeromeASF", boost: "+40% EXP", baseRate: 10 },
+            { code: "Lion", creator: "Lion Playz", boost: "+40% EXP", baseRate: 10 },
+            { code: "MightyCanadian", creator: "MightyCanadian", boost: "+40% EXP", baseRate: 10 },
+            { code: "Nazar", creator: "Nazar", boost: "+40% EXP", baseRate: 10 },
+            { code: "no1r", creator: "no1r", boost: "+40% EXP", baseRate: 10 },
+            { code: "PEPO", creator: "Pepo", boost: "+40% EXP", baseRate: 10 },
+            { code: "SadnessForever", creator: "SadnessForever", boost: "+40% EXP", baseRate: 10 },
+            { code: "Samvit", creator: "Samvit", boost: "+40% EXP", baseRate: 10 },
+            { code: "Shadow2312", creator: "Shadow2312", boost: "+40% EXP", baseRate: 10 },
+            { code: "Theubr", creator: "Theubr", boost: "+40% EXP", baseRate: 10 },
+            { code: "Tocxa", creator: "Tocxa", boost: "+40% EXP", baseRate: 10 },
+            { code: "USMAN", creator: "Usman", boost: "+40% EXP", baseRate: 10 },
+            { code: "EVOWORLD", creator: "Official EvoWorld", boost: "General Bonus", baseRate: 20 },
+            { code: "GRIFFPATCH", creator: "Griffpatch", boost: "Special Bonus", baseRate: 25 },
+            { code: "PIXELVOICE", creator: "PixelVoice Dev", boost: "Developer Special", baseRate: 35 },
+            { code: "7YEARS", creator: "Anniversary Event", boost: "+200% Mega Boost", baseRate: 50 }
+        ];
+
+        /* AI Leaderboard Players */
+        let AI_PLAYERS = [
+            { name: "ProFlyer_99", tier: "Gold", exp: 850000 },
+            { name: "ReaperKing", tier: "Diamond", exp: 620000 },
+            { name: "EvoGod_PH", tier: "Platinum", exp: 410000 },
+            { name: "SkyMaster_YT", tier: "Platinum", exp: 290000 },
+            { name: "ShadowFly", tier: "Gold", exp: 175000 },
+            { name: "NortosFan", tier: "Gold", exp: 85000 },
+            { name: "FlyOrDieLegend", tier: "Silver", exp: 34000 },
+            { name: "NoobReaper", tier: "Bronze", exp: 12000 }
+        ];
+
+        /* ==========================================================================
+           2. LOCAL STORAGE & INITIAL GAME STATE
+           ========================================================================== */
+        const STORAGE_KEY = "EvoWorld_Clicker_SaveData_v1";
+
+        let gameState = {
+            playerName: "Player_1",
+            totalExp: 0,
+            autoHoverEnabled: true,
+            unlockedCodes: {}, // { codeName: level }
+            lastSavedTimestamp: Date.now()
+        };
+
+        let activeMainHoverInterval = null;
+        let activeCodeHoverIntervals = {};
+
+        /* Initialize Game on Window Load */
+        window.onload = function() {
+            loadGameData();
+            renderEvolutionTree();
+            renderCreatorCodes();
+            updateUI();
+            
+            // Main Game Loop (10 ticks / sec)
+            setInterval(gameLoopTick, 100);
+            
+            // AI Leaderboard Loop (Every 2 secs)
+            setInterval(updateLeaderboard, 2000);
+
+            // Auto Save Loop (Every 5 secs)
+            setInterval(saveGameData, 5000);
+        };
+
+        /* Save & Load Functions */
+        function saveGameData() {
+            gameState.lastSavedTimestamp = Date.now();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(gameState));
+        }
+
+        function loadGameData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    gameState = { ...gameState, ...parsed };
+                    
+                    // Offline progress calculation
+                    const secondsPassed = Math.floor((Date.now() - (gameState.lastSavedTimestamp || Date.now())) / 1000);
+                    if (secondsPassed > 0) {
+                        const passiveRate = getPassiveExpRate();
+                        const offlineGain = passiveRate * Math.min(secondsPassed, 86400); // max 24 hrs
+                        if (offlineGain > 0) {
+                            gameState.totalExp += offlineGain;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Save corrupted, starting fresh.", e);
+                }
+            }
+            document.getElementById("player-name-display").innerText = gameState.playerName;
+            document.getElementById("auto-hover-toggle").checked = gameState.autoHoverEnabled;
+        }
+
+        function confirmReset() {
+            if (confirm("Are you sure you want to reset all EXP, evolution levels, and unlocked bots?")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
+        }
+
+        /* ==========================================================================
+           3. CORE CALCULATIONS & EVOLUTION MECHANICS
+           ========================================================================== */
+        function getCurrentStage() {
+            let current = EVOLUTION_STAGES[0];
+            for (let i = 0; i < EVOLUTION_STAGES.length; i++) {
+                if (gameState.totalExp >= EVOLUTION_STAGES[i].reqExp) {
+                    current = EVOLUTION_STAGES[i];
+                } else {
+                    break;
+                }
+            }
+            return current;
+        }
+
+        function getNextStage() {
+            const current = getCurrentStage();
+            const currentIndex = EVOLUTION_STAGES.findIndex(s => s.id === current.id);
+            if (currentIndex < EVOLUTION_STAGES.length - 1) {
+                return EVOLUTION_STAGES[currentIndex + 1];
+            }
+            return null; // Max stage
+        }
+
+        function getPassiveExpRate() {
+            let rate = 0;
+            CREATOR_CODES.forEach(c => {
+                const lvl = gameState.unlockedCodes[c.code] || 0;
+                if (lvl > 0) {
+                    rate += c.baseRate * lvl;
+                }
+            });
+            const stage = getCurrentStage();
+            return rate * stage.mult;
+        }
+
+        function getClickExpValue() {
+            const stage = getCurrentStage();
+            let baseClick = 1;
+            // Add bonus from unlocked codes
+            Object.keys(gameState.unlockedCodes).forEach(code => {
+                baseClick += (gameState.unlockedCodes[code] || 0) * 2;
+            });
+            return baseClick * stage.mult;
+        }
+
+        /* ==========================================================================
+           4. MAIN CLICK & HOVER HANDLERS
+           ========================================================================== */
+        function handleMainClick(e) {
+            const expGained = getClickExpValue();
+            gameState.totalExp += expGained;
+            
+            spawnFloatText(e.clientX, e.clientY, `+${formatNumber(expGained)} EXP`);
+            updateUI();
+        }
+
+        function startMainHover() {
+            if (!gameState.autoHoverEnabled) return;
+            if (!activeMainHoverInterval) {
+                activeMainHoverInterval = setInterval(() => {
+                    const expGained = Math.max(1, Math.floor(getClickExpValue() * 0.4));
+                    gameState.totalExp += expGained;
+                    
+                    // Spawn mini float text randomly around icon
+                    const target = document.getElementById("main-click-target");
+                    if (target) {
+                        const rect = target.getBoundingClientRect();
+                        const rx = rect.left + Math.random() * rect.width;
+                        const ry = rect.top + Math.random() * rect.height;
+                        if (Math.random() > 0.6) {
+                            spawnFloatText(rx, ry, `+${formatNumber(expGained)}`, "text-cyan-300");
+                        }
+                    }
+                    updateUI();
+                }, 150);
+            }
+        }
+
+        function stopMainHover() {
+            if (activeMainHoverInterval) {
+                clearInterval(activeMainHoverInterval);
+                activeMainHoverInterval = null;
+            }
+        }
+
+        function toggleAutoHover() {
+            const toggle = document.getElementById("auto-hover-toggle");
+            gameState.autoHoverEnabled = toggle.checked;
+            if (!gameState.autoHoverEnabled) {
+                stopMainHover();
+            }
+        }
+
+        /* ==========================================================================
+           5. CREATOR CODE & AUTO-CLICKER BOT MECHANICS
+           ========================================================================== */
+        function clickCreatorCode(codeName, event) {
+            const codeObj = CREATOR_CODES.find(c => c.code === codeName);
+            if (!codeObj) return;
+
+            // Level up Auto-Clicker Bot for this creator code
+            const currentLvl = gameState.unlockedCodes[codeName] || 0;
+            gameState.unlockedCodes[codeName] = currentLvl + 1;
+
+            // Grant instant click bonus
+            const instantBonus = codeObj.baseRate * 25 * (currentLvl + 1);
+            gameState.totalExp += instantBonus;
+
+            if (event) {
+                spawnFloatText(event.clientX, event.clientY, `+${formatNumber(instantBonus)} EXP! (Bot Lvl ${currentLvl + 1})`, "text-emerald-400");
+            }
+
+            // Visual Card Pulse
+            const cardElem = document.getElementById(`code-card-${codeName}`);
+            if (cardElem) {
+                cardElem.classList.add("autoclick-pulse");
+                setTimeout(() => cardElem.classList.remove("autoclick-pulse"), 400);
+            }
+
+            renderCreatorCodes();
+            updateUI();
+        }
+
+        function startCodeHover(codeName, event) {
+            if (activeCodeHoverIntervals[codeName]) return;
+            
+            activeCodeHoverIntervals[codeName] = setInterval(() => {
+                const codeObj = CREATOR_CODES.find(c => c.code === codeName);
+                if (!codeObj) return;
+                
+                const hoverGain = Math.ceil(codeObj.baseRate * 0.8 * getCurrentStage().mult);
+                gameState.totalExp += hoverGain;
+                
+                const cardElem = document.getElementById(`code-card-${codeName}`);
+                if (cardElem && Math.random() > 0.5) {
+                    const rect = cardElem.getBoundingClientRect();
+                    const rx = rect.left + (Math.random() * rect.width);
+                    const ry = rect.top + (Math.random() * rect.height);
+                    spawnFloatText(rx, ry, `+${hoverGain}`, "text-yellow-300");
+                }
+                updateUI();
+            }, 200);
+        }
+
+        function stopCodeHover(codeName) {
+            if (activeCodeHoverIntervals[codeName]) {
+                clearInterval(activeCodeHoverIntervals[codeName]);
+                delete activeCodeHoverIntervals[codeName];
+            }
+        }
+
+        /* ==========================================================================
+           6. UI RENDERING & TICK LOGIC
+           ========================================================================== */
+        function gameLoopTick() {
+            // Passive bot EXP addition
+            const passiveRate = getPassiveExpRate();
+            if (passiveRate > 0) {
+                gameState.totalExp += passiveRate / 10; // since loop ticks 10 times per sec
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const currentStage = getCurrentStage();
+            const nextStage = getNextStage();
+
+            // Total EXP Display
+            document.getElementById("total-exp-display").innerText = formatNumber(Math.floor(gameState.totalExp));
+            document.getElementById("exp-per-sec-display").innerText = `+${formatNumber(Math.floor(getPassiveExpRate()))} EXP / sec (Passive)`;
+
+            // Stage Badge & Icon
+            document.getElementById("stage-badge").innerText = `STAGE ${currentStage.id}: ${currentStage.name.toUpperCase()}`;
+            document.getElementById("multiplier-display").innerHTML = `<i class="fa-solid fa-bolt mr-1"></i>${currentStage.mult}x Multiplier`;
+
+            // Main Creature Icon Update
+            const iconWrapper = document.getElementById("creature-icon-wrapper");
+            iconWrapper.className = `floating-avatar text-7xl sm:text-8xl ${currentStage.color} group-hover:scale-110 transition duration-300`;
+            iconWrapper.innerHTML = `<i class="fa-solid ${currentStage.icon}"></i>`;
+
+            // Progress Bar
+            if (nextStage) {
+                const stageExpStart = currentStage.reqExp;
+                const stageExpEnd = nextStage.reqExp;
+                const currentProgress = gameState.totalExp - stageExpStart;
+                const totalNeeded = stageExpEnd - stageExpStart;
+                const percentage = Math.min(100, Math.max(0, (currentProgress / totalNeeded) * 100));
+
+                document.getElementById("evolution-progress-bar").style.width = `${percentage}%`;
+                document.getElementById("next-stage-name").innerText = `Next: ${nextStage.name}`;
+                document.getElementById("current-stage-exp").innerText = `${formatNumber(Math.floor(gameState.totalExp))} EXP`;
+                document.getElementById("required-stage-exp").innerText = `${formatNumber(nextStage.reqExp)} EXP`;
+            } else {
+                document.getElementById("evolution-progress-bar").style.width = `100%`;
+                document.getElementById("next-stage-name").innerText = `MAX STAGE REACHED!`;
+                document.getElementById("current-stage-exp").innerText = `${formatNumber(Math.floor(gameState.totalExp))} EXP`;
+                document.getElementById("required-stage-exp").innerText = `MAX`;
+            }
+        }
+
+        function renderEvolutionTree() {
+            const container = document.getElementById("evolution-tree-container");
+            container.innerHTML = "";
+
+            EVOLUTION_STAGES.forEach(st => {
+                const isUnlocked = gameState.totalExp >= st.reqExp;
+                const badge = document.createElement("div");
+                badge.className = `flex flex-col items-center justify-center p-2 rounded-lg border text-center transition ${
+                    isUnlocked 
+                        ? 'bg-slate-800/80 border-cyan-500/50 text-cyan-300' 
+                        : 'bg-slate-950/40 border-slate-800 text-slate-600 opacity-60'
+                }`;
+                badge.innerHTML = `
+                    <i class="fa-solid ${st.icon} text-lg mb-1"></i>
+                    <span class="text-[10px] font-bold font-orbitron truncate w-full">${st.name}</span>
+                `;
+                container.appendChild(badge);
+            });
+        }
+
+        function renderCreatorCodes() {
+            const container = document.getElementById("creator-codes-grid");
+            const filterText = (document.getElementById("code-search-input").value || "").toLowerCase();
+            container.innerHTML = "";
+
+            CREATOR_CODES.forEach(c => {
+                if (filterText && !c.code.toLowerCase().includes(filterText) && !c.creator.toLowerCase().includes(filterText)) {
+                    return;
+                }
+
+                const botLevel = gameState.unlockedCodes[c.code] || 0;
+                const card = document.createElement("div");
+                card.id = `code-card-${c.code}`;
+                card.onclick = (e) => clickCreatorCode(c.code, e);
+                card.onmouseenter = (e) => startCodeHover(c.code, e);
+                card.onmouseleave = () => stopCodeHover(c.code);
+
+                card.className = `bg-slate-950/90 border ${botLevel > 0 ? 'border-emerald-500/60 box-glow-cyan' : 'border-slate-800'} 
+                                  hover:border-cyan-400 rounded-xl p-3 flex flex-col justify-between cursor-pointer 
+                                  transition-all duration-200 transform hover:-translate-y-0.5 group relative overflow-hidden`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-orbitron font-bold text-xs text-cyan-300 group-hover:text-cyan-200">${c.code}</span>
+                        <span class="text-[9px] font-extrabold px-1.5 py-0.5 rounded ${botLevel > 0 ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-800 text-slate-400'}">
+                            ${botLevel > 0 ? `BOT LVL ${botLevel}` : 'TAP CODE'}
+                        </span>
+                    </div>
+                    <div class="text-[10px] text-slate-400 font-medium truncate">${c.creator}</div>
+                    <div class="mt-2 flex justify-between items-center text-[10px]">
+                        <span class="text-rose-400 font-bold">${c.boost}</span>
+                        <span class="text-emerald-400 font-bold">+${c.baseRate * (botLevel > 0 ? botLevel : 1)} EXP/s</span>
+                    </div>
+                    <!-- Subtle Hover Flash -->
+                    <div class="absolute inset-0 bg-cyan-400/5 opacity-0 group-hover:opacity-100 transition pointer-events-none"></div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterCreatorCodes() {
+            renderCreatorCodes();
+        }
+
+        /* ==========================================================================
+           7. LEADERBOARD & AI BOTS LOGIC
+           ========================================================================== */
+        function updateLeaderboard() {
+            // Simulate dynamic AI EXP growth
+            AI_PLAYERS.forEach(ai => {
+                const growth = Math.floor(Math.random() * 2500) + 200;
+                ai.exp += growth;
+            });
+
+            // Combine AI players with user player state
+            const allPlayers = [
+                ...AI_PLAYERS,
+                { name: `${gameState.playerName} (YOU)`, exp: Math.floor(gameState.totalExp), isUser: true }
+            ];
+
+            // Sort by EXP descending
+            allPlayers.sort((a, b) => b.exp - a.exp);
+
+            const tbody = document.getElementById("leaderboard-body");
+            tbody.innerHTML = "";
+
+            allPlayers.slice(0, 10).forEach((player, index) => {
+                const rank = index + 1;
+                let rankBadge = `<span class="font-bold text-slate-400">${rank}</span>`;
+                if (rank === 1) rankBadge = `<i class="fa-solid fa-crown text-yellow-400 text-sm"></i>`;
+                else if (rank === 2) rankBadge = `<i class="fa-solid fa-medal text-slate-300 text-sm"></i>`;
+                else if (rank === 3) rankBadge = `<i class="fa-solid fa-award text-amber-600 text-sm"></i>`;
+
+                // Calculate tier based on rank/EXP
+                let tierText = "Bronze";
+                let tierColor = "text-amber-700 bg-amber-950/40 border-amber-800";
+                if (player.exp >= 800000) {
+                    tierText = "Diamond";
+                    tierColor = "text-cyan-300 bg-cyan-950/60 border-cyan-700";
+                } else if (player.exp >= 400000) {
+                    tierText = "Platinum";
+                    tierColor = "text-purple-300 bg-purple-950/60 border-purple-700";
+                } else if (player.exp >= 100000) {
+                    tierText = "Gold";
+                    tierColor = "text-yellow-300 bg-yellow-950/60 border-yellow-700";
+                } else if (player.exp >= 30000) {
+                    tierText = "Silver";
+                    tierColor = "text-slate-300 bg-slate-800/60 border-slate-700";
+                }
+
+                const tr = document.createElement("tr");
+                tr.className = `transition ${player.isUser ? 'bg-cyan-950/40 font-bold border-l-2 border-cyan-400' : 'hover:bg-slate-800/30'}`;
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 flex items-center space-x-1.5">${rankBadge} <span class="text-xs ml-1">#${rank}</span></td>
+                    <td class="py-2.5 px-3 ${player.isUser ? 'text-cyan-300' : 'text-slate-200'}">${escapeHTML(player.name)}</td>
+                    <td class="py-2.5 px-3">
+                        <span class="text-[9px] font-bold px-2 py-0.5 rounded border ${tierColor}">${tierText}</span>
+                    </td>
+                    <td class="py-2.5 px-3 text-right font-orbitron font-bold ${player.isUser ? 'text-emerald-400' : 'text-slate-300'}">
+                        ${formatNumber(player.exp)}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        /* ==========================================================================
+           8. UTILITY & HELPER FUNCTIONS
+           ========================================================================== */
+        function spawnFloatText(x, y, text, colorClass = "text-cyan-400") {
+            const el = document.createElement("div");
+            el.className = `float-text ${colorClass}`;
+            el.innerText = text;
+            el.style.left = `${x - 20}px`;
+            el.style.top = `${y - 20}px`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function formatNumber(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + "M";
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + "K";
+            return num.toString();
+        }
+
+        function editPlayerName() {
+            document.getElementById("rename-input").value = gameState.playerName;
+            document.getElementById("rename-modal").classList.remove("hidden");
+        }
+
+        function closeRenameModal() {
+            document.getElementById("rename-modal").classList.add("hidden");
+        }
+
+        function savePlayerName() {
+            const val = document.getElementById("rename-input").value.trim();
+            if (val) {
+                gameState.playerName = val;
+                document.getElementById("player-name-display").innerText = val;
+                saveGameData();
+                updateLeaderboard();
+            }
+            closeRenameModal();
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
+        }
+    </script>
+</body>
+</html>
